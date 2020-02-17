@@ -79,7 +79,7 @@ export default {
 			this.showSearch = true
 		},
 		tohiddenSearch () {
-			this.$router.push(`/article?keyword=${this.searchStr}`)
+			this.$router.push(`/?keyword=${this.searchStr}`)
 			this.searchStr = ''
 			this.showSearch = false
 		},
@@ -120,10 +120,11 @@ export default {
 		overflow: hidden;
 	}
 	.navUp {
-		transform: translate3d(0, -60px, 0)
+		transform: translate3d(0, -62px, 0)
 	}
 	.navDown {
-		transform: translate3d(0, 0, 0)
+    transform: translate3d(0, 0, 0);
+    box-shadow: 0 2px 10px rgba(0,0,0,.05)
 	}
 	.musicHeader {
 		background: transparent;
@@ -137,7 +138,7 @@ export default {
 		transition: 0.3s
 	}
 	.box {
-		width: 900px;
+		width: 1100px;
 		margin: 0 auto;
 	}
 
@@ -211,7 +212,7 @@ export default {
 		cursor: pointer;
 	}
 	.rightIcon{
-		color: #099edd;
+		color: #3fb76c;
 	}
 	.musicContent{
 		position: absolute;

@@ -1,9 +1,9 @@
 <template>
   <section class="allArticleBox">
 	  <div class="tags">
-		  <nuxt-link 
+		  <nuxt-link
 		  	:to="`/article?tag=${item._id}`"
-		  	v-for="(item, index) in tags.result.list" 
+		  	v-for="(item, index) in tags.result.list"
 			:key="index">{{item.name}}<span>({{item.count}})</span></nuxt-link>
 	  </div>
 	  <div class="articleList" v-if="article.length > 0">

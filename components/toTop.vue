@@ -1,7 +1,5 @@
 <template>
   <div class="sideIcon">
-	  <i class="iconfont" @click="mail">&#xe654;</i>
-	  <i class="iconfont" @click="scroll(1)">&#xe638;</i>
 	  <i class="iconfont" @click="scroll(0)">&#xe635;</i>
   </div>
 </template>
@@ -44,10 +42,10 @@ export default {
 .sideIcon{
 	position: fixed;
 	width: 42px;
-	height: 126px;
+	height: 42px;
 	background: hsla(0,0%,77%,.4);
 	bottom: 100px;
-	left: 50%;
+	right: 100px;
 	margin-left: 500px;
 }
 .sideIcon i{
@@ -66,7 +64,7 @@ export default {
 	border-bottom: 1px solid #f1f1f1;
 }
 .sideIcon i:hover{
-	background: #8ed53c;
+	background: #6795b5;
 	color: #ffffff;
 }
 </style>

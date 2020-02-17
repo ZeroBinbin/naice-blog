@@ -1,237 +1,299 @@
 <template>
-	<div class="homePage">
-		<section id="aside">
-			<div class="aside-box">
-        <div class="marsk"></div>
-        <div class="aside-content">
-          <a>
-            <img src="../assets/img/averter.jpg" alt="">
-          </a>
-          <h1>
-            <nuxt-link to="/article?page=0">Naice</nuxt-link>
-            <p>很多事情不是因为有希望才去坚持，而是坚持了才有希望。</p>
-          </h1>
-          <slot></slot>
-          <div class="aside-icon">
-            <a href="https://github.com/naihe138">
-              <i class="iconfont">&#xe621;</i>
-            </a>
-            <a href="https://segmentfault.com/u/naice">
-              <i class="iconfont">&#xe610;</i>
-            </a>
-          </div>
-        </div>
-      </div>
-		</section>
-		<div class="home-view">
-			<section class="aboutMe">
-				<div class="about-nav">
-					<nuxt-link to="/article">
-						<span class="lt1">文章</span>
-						<span class="lt2">Article</span>
-					</nuxt-link>
-					<nuxt-link to="/music">
-						<span class="lt1">音乐</span>
-						<span class="lt2">Music</span>
-					</nuxt-link>
-				</div>
-				<div class="about-nav">
-					<nuxt-link to="/project">
-						<span class="lt1">项目</span>
-						<span class="lt2">Project</span>
-					</nuxt-link>
-					<nuxt-link to="/about">
-						<span class="lt1">关于</span>
-						<span class="lt2">About</span>
-					</nuxt-link>
-				</div>
-			</section>
-		</div>
-	</div>
+    <div class="articleBox">
+        <main class="box main">
+            <section class="article">
+                <div class="item" v-for="(item, index) in article" :key="index">
+                    <a href="javascript:void(0)" class="article-title" @click="goDetail(item._id, article)">
+                        <h2>{{item.title}}</h2>
+                    </a>
+                    <p class="article-desc">{{item.descript}}</p>
+                    <div class="article-info">
+                        <span class="time">{{toTime(item.update_at, '.')}}</span>
+                            <i class="iconfont">&#xe600;</i>
+                        <span class="time"><strong v-if="item.meta">{{item.meta.views}}</strong>次阅读</span>
+                            <i class="iconfont">&#xe600;</i>
+                        <span class="time"><strong v-if="item.meta">{{item.meta.comments}}</strong>条评论</span>
+                            <i class="iconfont">&#xe600;</i>
+                        <span class="time"><strong v-if="item.meta">{{item.meta.likes}}</strong>人喜欢</span>
+                    </div>
+                </div>
+                <div class="loadmore" v-if="!hasMore">没有更多数据了</div>
+                <div class="loadmore" v-else>
+                    <span v-if="isLoadingData">数据加载中...</span>
+                </div>
+            </section>
+            <section class="side">
+                <div class="hot" id = "sideHot">
+                    <div class="hot-title">最新文章</div>
+                    <div class="hot-article">
+                        <h3 v-for="(item, index) in hotArticle" :key="index" @click="goDetail(item._id, hotArticle)">
+                            <a href="javascript:void(0)">{{item.title}}</a>
+                        </h3>
+                    </div>
+                </div>
+                <div :class="showFixedTag ? 'fixedTag' : ''">
+                  <div class="tags" id = "tags">
+                      <div class="hot-title">标签</div>
+                      <div class="tag-list">
+                          <nuxt-link
+                              v-for="(item, index) in tags.result.list"
+                              :key="index"
+                              :to="`?tag=${item._id}`">{{item.name}}<span>({{item.count}})</span></nuxt-link>
+                      </div>
+                  </div>
+                </div>
+            </section>
+        </main>
+        <to-top></to-top>
+    </div>
 </template>
 
 <script>
-	export default {
-		head () {
-			return {
-				title: 'naice | 首页'
-			}
-		},
-		mounted() {
-			const userinfo = localStorage.getItem('userInfo')
-			if (!userinfo) {
-				this.$store.commit('changeAverter', Math.floor(Math.random() * 20))
-			} else {
-				let info = JSON.parse(userinfo)
-				this.$store.commit('changeAverter', info.gravatar)
-			}
-		}
-	}
+import {getArticle, getTag} from '../api'
+import ToTop from '../components/toTop.vue'
+import FooterMixin from '../utils/footer-mixin'
+import TimeMixin from '../utils/time-mixin'
+
+let page = 1
+let fetchTags = getTag()
+let fetchHotArticle = getArticle({hot: true})
+let fetchArticle = getArticle({current_page: page})
+
+export default {
+  head () {
+    return {
+      title: 'ZeroBinbin | 首页'
+    }
+  },
+  layout: 'layout',
+  mixins: [FooterMixin, TimeMixin],
+  components: {
+    ToTop
+  },
+  async asyncData ({ params }) {
+    const tags = await fetchTags
+    const articles = await fetchArticle
+    const hotArticle = await fetchHotArticle
+    return {
+      tags,
+      article: articles.result.list,
+      hotArticle: hotArticle.result.list
+    }
+  },
+  data () {
+    return {
+      showFixedTag: false,
+      sideHot: null,
+      isLoadingData: false,
+      hasMore: true,
+      page: page
+    }
+  },
+  computed: {
+    scrollTop () {
+      return this.$store.state.scrollTop
+    }
+  },
+  methods: {
+    loadMore(opts = {}) {
+      this.isLoadingData = true
+      this.page += 1
+      let params = {current_page: this.page, ...opts}
+      getArticle(params).then(res => {
+        this.isLoadingData = false
+        const {result} = res
+        if (this.page >= result.pagination.total_page) {
+          this.hasMore = false
+        }
+        let arr = []
+        if (opts.tag || opts.keyword || opts.isNew) {
+          arr = result.list
+        } else {
+          arr = this.article.concat(result.list)
+        }
+        // this.$store.commit('getArticle', arr)
+        this.article = arr
+        this.$nextTick(() => {
+          this.footer()
+        })
+      }).catch(err => {
+        this.isLoadingData = false
+      })
+    },
+    goDetail(id, data) {
+      const arr = data.filter(item => item._id == id)
+      this.$store.commit('selectArticle', arr[0])
+      this.$router.push('/page/' + id)
+    }
+  },
+  mounted () {
+    this.$nextTick(() => {
+      this.sideHot = document.querySelector('#sideHot')
+      this.mailContentDom = document.querySelector('#mailContent')
+      this.windowHeight = document.documentElement.clientHeight
+      this.footer()
+      window.addEventListener('scroll', (e) => {
+        const top = $(document).scrollTop()
+        const mailContentDomHeight = this.mailContentDom.offsetHeight
+        this.showFixedTag = (top >= (this.sideHot.offsetHeight + 80))
+        if ((this.windowHeight + top) > (mailContentDomHeight - 50) && !this.isLoadingData && this.hasMore) {
+          this.loadMore()
+        }
+      })
+    })
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      if (to.query.tag || to.query.keyword) {
+        vm.page = 0
+        vm.loadMore(to.query)
+      }
+    })
+  },
+  beforeRouteUpdate (to, from, next) {
+    this.page = 0
+    this.hasMore = true
+    if (to.query.tag || to.query.keyword) {
+      this.loadMore(to.query)
+    } else {
+      this.loadMore({isNew: true})
+    }
+    next()
+  }
+}
 </script>
 
 <style scoped>
-	:root {
-		--fontColor: #5e5e5e; /*文字颜色*/
-		--titleColor: #3e3e3e; /*标题颜色*/
-		--lineColor: #3fb76c; /*线条绿色*/
-	}
+    .main {
+      clear: both;
+      overflow: hidden;
+    }
 
-	.homePage {
-		width: 100%;
-		height: 100%;
-		display: flex;
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-	}
+    .article {
+      width: 835px;
+      float: left;
+      box-sizing: border-box;
+      background: transparent;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+    }
 
-	#aside {
-		width: 50%;
-		height: 100%;
-		background: url("../assets/img/aside-bg.jpg") no-repeat center center;
-		background-size: 100% 100%;
-		transition: width 0.3s;
-	}
+    .item {
+      padding: 24px 18px;
+      overflow: hidden;
+      position: relative;
+      background: #fff;
+      cursor: pointer;
+      /* border-bottom: 1px solid #f1f1f1; */
+    }
 
-	.home-view {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		flex: 1;
-		height: 100%;
-		width: 100%;
-		position: relative;
-	}
+    .item:last-child::after {
+      width: 0px;
+    }
 
-	.aboutMe {
-		width: 260px;
-		/*border: 1px solid red;*/
-		height: 300px;
-	}
+    .item::after {
+      content: "";
+      display: block;
+      position: absolute;
+      height: 1px;
+      bottom: 0;
+      left: 0;
+      width: 150px;
+    }
 
-	.about-nav{
-		display: flex;
-		justify-content: space-between;
-		margin-bottom: 30px;
-	}
-	.about-nav a{
-		width: 100px;
-		height: 100px;
-		border: 1px solid #ccc;
-		border-radius: 50%;
-		text-align: center;
-		line-height: 100px;
-		font-size: 18px;
-		color: #333;
-		text-decoration: none;
-		transition: background 0.3s;
-	}
-	.about-nav a .lt2 {
-		display: none;
-	}
-	.about-nav a:hover{
-		background: #3fb76c;
-		color: #fff;
-		border-color: #3fb76c;
-	}
-	.about-nav a:hover .lt2{
-		display: inline;
-	}
-	.about-nav a:hover .lt1{
-		display: none;
-	}
-  .aside-box {
-		/*width: 100%;*/
-		overflow: hidden;
-		height: 100%;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		background: rgba(255, 255, 255, 0.7) url("../assets/img/aside-bg.jpg") no-repeat center center;
-		background-size: auto 100%;
-	}
+    .item .article-title {
+      margin-bottom: 15px;
+      font-size: 16px;
+      display: block;
+    }
 
-	.marsk {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		background: rgba(255, 255, 255, 0.5);
-	}
+    .item .article-title h2 {
+      font-weight: normal;
+      font-size: 20px;
+      display: inline-block;
+      position: relative;
+      color: #6795b5;
+    }
 
-	.aside-content {
-		width: 400px;
-		height: 400px;
-		/*border: 1px solid red;*/
-		text-align: center;
-		position: relative;
-		z-index: 2;
-	}
+    .item:hover .article-title h2,
+    .item:active .article-title h2{
+      color: #ca0c16;
+    }
 
-	.aside-content img {
-		width: 100px;
-		height: 100px;
-		border-radius: 50%;
-		transition: transform 0.5s;
-		cursor: pointer;
-	}
+    .item .article-desc {
+      line-height: 24px;
+      /* text-indent: 24px; */
+      color: #777;
+    }
 
-	.aside-content img:hover {
-		transform: rotate(360deg);
-		box-shadow: 0 0 30px rgba(0, 255, 249, 0.57);
-	}
+    .item .article-info {
+      margin-top: 20px;
+      color: #8c8c8c;
+      font-size: 12px;
+    }
 
-	.aside-content h1 {
-		color: var(--titleColor);
-		font-size: 22px;
-		padding-top: 16px;
-		padding-bottom: 30px;
-	}
+    .item .article-info i,
+    .item .article-info strong {
+      font-size: 12px;
+    }
 
-	.aside-content h1 a{
-		color: var(--titleColor);
-		font-size: 22px;
-		text-decoration: none;
-	}
-
-	.aside-content h1:after {
-		content: '';
-		display: block;
-		height: 1px;
-		width: 200px;
-		margin: 0 auto;
-		background: var(--lineColor);
-		margin-top: 15px;
-	}
-
-	.aside-content p {
-		font-size: 12px;
-		padding-top: 10px;
-		padding-bottom: 10px;
-		color: var(--fontColor);
-	}
-
-	.aside-icon {
-		clear: both;
-		display: flex;
-		justify-content: center;
-	}
-
-	.aside-icon a {
-		width: 34px;
-		height: 34px;
-		background-color: #5e5e5e;
-		margin: 0 10px;
-		cursor: pointer;
-		transition: background-color 0.3s;
-		border-radius: 2px;
-		color: #fff;
-		text-decoration: none;
-		text-align: center;
-		line-height: 34px;
-	}
-
-	.aside-icon a:hover {
-		background-color: var(--lineColor);
-	}
+    .side {
+      background: #fff;
+      width: 250px;
+      float: right;
+      box-sizing: border-box;
+      padding: 24px 0 24px 15px;
+      box-shadow: 0 -2px 12px 0 rgba(0,0,0,.1);
+    }
+    .tagSide {
+        width: 250px;
+        box-sizing: border-box;
+        padding-top: 24px;
+        position: fixed;
+        left: 50%;
+        margin-left: 200px;
+        top: 24px;
+    }
+    .hot-title{
+        font-size: 16px;
+        color: #1f1f1f;
+    }
+    .hot-article, .tag-list{
+        margin-top: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 6px;
+    }
+    .hot-article h3{
+        font-weight: normal;
+        line-height: 40px;
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+    .tags{
+        margin-top: 24px;
+    }
+    .tag-list a{
+        display: inline-block;
+        padding: 10px;
+    }
+    .loadmore{
+        text-align: center;
+        padding: 12px 0;
+        cursor: pointer;
+        color: #cccccc;
+        background: #fff;
+    }
+    .flag{
+        width: 35%;
+        height: 1px;
+        background: #f1f1f1;
+        margin-bottom: 20px;
+    }
+    .fixedTag{
+      position: fixed;
+      width: 250px;
+      top: 60px;
+    }
 </style>

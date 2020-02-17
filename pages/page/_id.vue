@@ -6,37 +6,6 @@
             </div>
             <div v-html="article.editContent"></div>
         </div>
-        <div class="info articleDetailBox">
-            <p>本文于 {{toTime(article.update_at, '/')}} 下午 发布在，当前已被围观 {{article.meta.views}} 次</p>
-            <p>标签：<nuxt-link
-                v-for="(tag, index) in article.tag"
-                :key="index"
-                to="/article"
-                class="tagLink"
-                >{{tag.name}}</nuxt-link></p>
-            <p>作者：Naice</p>
-            <p>链接：https://naice.me/article/{{article._id}}</p>
-            <p>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-        </div>
-        <transition name="fade">
-            <div class="shearBox articleDetailBox" v-show="isShowShear" style="background: transparent">
-                <shear :title="article.title" :url="`https://blog.naice.me/article/${article._id}`"></shear>
-            </div>
-        </transition>
-        <div class="arcMata articleDetailBox" style="background: transparent">
-            <div class="arcMataInfo">
-                <div class="like" @click="toLike">
-                    <i class="iconfont" v-if="isLike"  style="color: #51ce23">&#xe63b;</i>
-                    <i class="iconfont"  v-else>&#xe65c;</i>
-                    <span>{{article.meta.likes}}</span>人喜欢
-                </div>
-                <div class="view"><span>{{article.meta.comments}}</span>条评论</div>
-            </div>
-            <div class="arcMataShear">
-                <span class="pay iconfont">&#xe614;</span>
-                <span class="shear iconfont" @click="showShear">&#xe6a5;</span>
-            </div>
-        </div>
         <!-- 评论组件 -->
         <div class="comment articleDetailBox">
             <comment v-on:pushComment="putComment"></comment>
@@ -120,14 +89,14 @@ import Shear from '../../components/shear'
 import Comment from '../../components/comment'
 import FooterMixin from '../../utils/footer-mixin'
 import TimeMixin from '../../utils/time-mixin'
-import {getArticleId, getComment, addReply, getReply, addComment, articleLike, commentLike} from '../../api'
+import {getArticleId, getComment, addReply, getReply, addComment, articleLike, commentLike} from '../../api/index'
 import {avarterArr} from '../../utils/blowser'
 
 export default {
     layout: 'layout',
     head () {
       return {
-        title: this.article.title || `naice | blog`
+        title: this.article.title || `ZeroBinbin | blog`
       }
     },
     validate({ params }) {
@@ -345,7 +314,7 @@ export default {
 
 <style>
 .articleDetailBox {
-    width: 900px;
+    width: 1100px;
     margin: 10px auto 0 auto;
     box-sizing: border-box;
     background: #ffffff;

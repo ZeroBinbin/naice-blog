@@ -17,8 +17,9 @@ module.exports = {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ],
     script: [
-      { src: 'https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js' },
-      { src: 'https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js' }
+      { src: 'http://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js' },
+      { src: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js' },
+      { src: '/live2d.js' }
     ]
   },
   css: [
