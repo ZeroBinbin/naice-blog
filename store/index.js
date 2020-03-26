@@ -1,33 +1,16 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import article from './modules/article'
-import project from './modules/project'
-import hero from './modules/hero'
-
-Vue.use(Vuex)
-
-const store = () => new Vuex.Store({
-  state: {
-    scrollTop: 0,
-    footerFixed: false,
-    averterNum: 0
+export const state = () => ({
+  scrollTop: 0,
+  footerFixed: false,
+  averterNum: 0
+});
+export const mutations = {
+  changeScroll(state, num) {
+    state.scrollTop = num
   },
-  modules: {
-    article,
-    project,
-    hero
+  changeFooterFixed(state, isb) {
+    state.footerFixed = isb
   },
-  mutations: {
-    changeScroll (state, num) {
-      state.scrollTop = num
-    },
-    changeFooterFixed (state, isb) {
-      state.footerFixed = isb
-    },
-    changeAverter (state, num) {
-      state.averterNum = num
-    }
+  changeAverter(state, num) {
+    state.averterNum = num
   }
-})
-
-export default store
+}

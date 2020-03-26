@@ -1,19 +1,18 @@
 import Vue from 'vue'
-import { getMatchedComponentsInstances, promisify, globalHandleError } from './utils'
 import NuxtLoading from './components/nuxt-loading.vue'
 
-import '../assets/css/init.css'
+import '..\\assets\\css\\init.css'
 
-import '../assets/css/codeStyle.css'
+import '..\\assets\\css\\codeStyle.css'
 
-import _7c6a36a0 from '../layouts/layout.vue'
-import _40930270 from '../layouts/music-layout.vue'
+import _7c6a36a0 from '..\\layouts\\layout.vue'
+import _40930270 from '..\\layouts\\music-layout.vue'
 import _6f6c098b from './layouts/default.vue'
 
 const layouts = { "_layout": _7c6a36a0,"_music-layout": _40930270,"_default": _6f6c098b }
 
 export default {
-  head: {"title":"Naice","meta":[{"charset":"utf-8"},{"http-equiv":"cleartype","content":"on"},{"http-equiv":"Cache-Control"},{"name":"viewport","content":"width=device-width, initial-scale=1, user-scalable=no"},{"hid":"description","name":"description","content":"Naice, 前端, blog"},{"hid":"keywords","name":"keywords","content":"前端开发，JavaScript, Node, Vue，nuxt"},{"name":"author","content":"370215230@qq.com"}],"link":[{"rel":"icon","type":"image\u002Fx-icon","href":"\u002Ffavicon.ico"}],"script":[{"src":"https:\u002F\u002Fcdn.bootcss.com\u002Fjquery\u002F3.3.1\u002Fjquery.min.js"},{"src":"https:\u002F\u002Fcdn.bootcss.com\u002Fhighlight.js\u002F9.12.0\u002Fhighlight.min.js"}],"style":[]},
+  head: {"title":"Naice","meta":[{"charset":"utf-8"},{"http-equiv":"cleartype","content":"on"},{"http-equiv":"Cache-Control"},{"name":"viewport","content":"width=device-width, initial-scale=1, user-scalable=no"},{"hid":"description","name":"description","content":"Naice, 前端, blog"},{"hid":"keywords","name":"keywords","content":"前端开发，JavaScript, Node, Vue，nuxt"},{"name":"author","content":"370215230@qq.com"}],"link":[{"rel":"icon","type":"image\u002Fx-icon","href":"\u002Ffavicon.ico"}],"script":[{"src":"https:\u002F\u002Flib.sinaapp.com\u002Fjs\u002Fjquery\u002F3.1.0\u002Fjquery-3.1.0.min.js"},{"src":"https:\u002F\u002Fcdnjs.cloudflare.com\u002Fajax\u002Flibs\u002Fhighlight.js\u002F9.18.1\u002Fhighlight.min.js"},{"src":"\u002Flive2d.js"}],"style":[]},
 
   render(h, props) {
     const loadingEl = h('NuxtLoading', { ref: 'loading' })
@@ -44,7 +43,10 @@ export default {
       domProps: {
         id: '__nuxt'
       }
-    }, [loadingEl, transitionEl])
+    }, [
+      loadingEl,
+      transitionEl
+    ])
   },
   data: () => ({
     isOnline: true,
@@ -67,8 +69,6 @@ export default {
     }
     // Add $nuxt.error()
     this.error = this.nuxt.error
-    // Add $nuxt.context
-    this.context = this.$options.context
   },
 
   mounted() {
@@ -96,40 +96,6 @@ export default {
         }
       }
     },
-    async refresh() {
-      const pages = getMatchedComponentsInstances(this.$route)
-
-      if (!pages.length) {
-        return
-      }
-      this.$loading.start()
-      const promises = pages.map(async (page) => {
-        const p = []
-
-        if (page.$options.fetch) {
-          p.push(promisify(page.$options.fetch, this.context))
-        }
-        if (page.$options.asyncData) {
-          p.push(
-            promisify(page.$options.asyncData, this.context)
-              .then((newData) => {
-                for (const key in newData) {
-                  Vue.set(page.$data, key, newData[key])
-                }
-              })
-          )
-        }
-        return Promise.all(p)
-      })
-      try {
-        await Promise.all(promises)
-      } catch (error) {
-        this.$loading.fail()
-        globalHandleError(error)
-        this.error(error)
-      }
-      this.$loading.finish()
-    },
 
     errorChanged() {
       if (this.nuxt.err && this.$loading) {
@@ -139,8 +105,6 @@ export default {
     },
 
     setLayout(layout) {
-      if(layout && typeof layout !== 'string') throw new Error('[nuxt] Avoid using non-string value as layout property.')
-
       if (!layout || !layouts['_' + layout]) {
         layout = 'default'
       }

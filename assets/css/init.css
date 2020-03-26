@@ -12,6 +12,11 @@ html {
   -webkit-font-smoothing: antialiased;
 }
 
+html, body {
+  height: 100%;
+  background: #f0f0f0;
+}
+
 *,
 *:before,
 *:after {
@@ -204,21 +209,6 @@ i {
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-::selection {
-  background: #3fb76c;
-  color: #fff;
-}
-
-::-moz-selection {
-  background: #3fb76c;
-  color: #fff;
-}
-
-::-webkit-selection {
-  background: #3fb76c;
-  color: #fff;
 }
 
 .fade-enter-active,

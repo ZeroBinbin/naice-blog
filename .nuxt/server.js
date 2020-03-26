@@ -1,6 +1,5 @@
 import { stringify } from 'querystring'
 import Vue from 'vue'
-import fetch from 'node-fetch'
 import middleware from './middleware.js'
 import { applyAsyncData, getMatchedComponents, middlewareSeries, promisify, urlJoin, sanitizeComponent } from './utils.js'
 import { createApp, NuxtError } from './index.js'
@@ -10,7 +9,8 @@ import NuxtLink from './components/nuxt-link.server.js' // should be included af
 Vue.component(NuxtLink.name, NuxtLink)
 Vue.component('NLink', NuxtLink)
 
-if (!global.fetch) { global.fetch = fetch }
+const debug = require('debug')('nuxt:render')
+debug.color = 4 // force blue color
 
 const noopApp = () => new Vue({ render: h => h('div') })
 
@@ -63,10 +63,9 @@ export default async (ssrContext) => {
   const beforeRender = async () => {
     // Call beforeNuxtRender() methods
     await Promise.all(ssrContext.beforeRenderFns.map(fn => promisify(fn, { Components, nuxtState: ssrContext.nuxt })))
-    ssrContext.rendered = () => {
-      // Add the state from the vuex store
-      ssrContext.nuxt.state = store.state
-    }
+
+    // Add the state from the vuex store
+    ssrContext.nuxt.state = store.state
   }
   const renderErrorPage = async () => {
     // Load layout for error page
@@ -82,8 +81,6 @@ export default async (ssrContext) => {
     return renderErrorPage()
   }
 
-  const s = Date.now()
-
   // Components are already resolved by setContext -> getRouteData (app/utils.js)
   const Components = getMatchedComponents(router.match(ssrContext.url))
 
@@ -94,7 +91,7 @@ export default async (ssrContext) => {
     try {
       await store.dispatch('nuxtServerInit', app.context)
     } catch (err) {
-      console.debug('Error occurred when calling nuxtServerInit: ', err.message)
+      debug('error occurred when calling nuxtServerInit: ', err.message)
       throw err
     }
   }
@@ -213,8 +210,6 @@ export default async (ssrContext) => {
 
     return Promise.all(promises)
   }))
-
-  if (process.env.DEBUG && asyncDatas.length)console.debug('Data fetching ' + ssrContext.url + ': ' + (Date.now() - s) + 'ms')
 
   // datas are the first row of each
   ssrContext.nuxt.data = asyncDatas.map(r => r[0] || {})

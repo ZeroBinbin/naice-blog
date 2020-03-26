@@ -17,7 +17,7 @@ module.exports = {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ],
     script: [
-      { src: 'http://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js' },
+      { src: 'https://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js' },
       { src: 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js' },
       { src: '/live2d.js' }
     ]
@@ -47,6 +47,5 @@ module.exports = {
         })
       }
     }
-  },
-  cache: true
+  }
 }

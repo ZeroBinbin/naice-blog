@@ -74,6 +74,7 @@ export default {
     const tags = await fetchTags
     const articles = await fetchArticle
     const hotArticle = await fetchHotArticle
+    console.log(articles);
     return {
       tags,
       article: articles.result.list,
