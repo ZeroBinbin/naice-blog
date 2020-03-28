@@ -3,14 +3,14 @@ module.exports = {
   ** Headers of the page
   */
   head: {
-    title: 'Naice',
+    title: 'ZeroBinbin',
     meta: [
       { charset: 'utf-8' },
       { 'http-equiv': 'cleartype', content: 'on' },
       { 'http-equiv': 'Cache-Control' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1, user-scalable=no' },
-      { hid: 'description', name: 'description', content: 'Naice, 前端, blog' },
-      { hid: 'keywords', name: 'keywords', content: '前端开发，JavaScript, Node, Vue，nuxt' },
+      { hid: 'description', name: 'description', content: 'ZeroBinbin，一个web前端工程师的个人博客,很多事情不是因为有希望才去坚持,而是坚持了才有希望' },
+      { hid: 'keywords', name: 'keywords', content: 'ZeroBinbin,前端开发，个人博客，blog' },
       { name: 'author', content: '370215230@qq.com' }
     ],
     link: [
